@@ -1,0 +1,255 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//////////////////////
+// AUTH.JS (NEXTAUTH) ADAPTER MODELS
+//////////////////////
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+// Doubles as storage for the 6-digit email verification PIN:
+// identifier = email, token = the PIN, expires = its expiry.
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+//////////////////////
+// ENUMS
+//////////////////////
+
+enum Role {
+  OWNER
+  ADMIN
+  STAFF
+  CUSTOMER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  STAFF
+}
+
+
+//////////////////////
+// USER (AUTH)
+//////////////////////
+
+model User {
+  id            String    @id @default(uuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String?
+  role          Role      @default(CUSTOMER)
+
+  // relationships
+  ownedBusinesses Business[]   @relation("BusinessOwner")
+  memberships     Membership[]
+  bookings        Booking[]
+  accounts        Account[]
+  sessions        Session[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  @@map("users")
+}
+
+//////////////////////
+// BUSINESS (CORE SAAS UNIT)
+//////////////////////
+
+model Business {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  ownerId     String   @map("owner_id")
+
+  slug        String?   @unique
+
+  owner       User     @relation("BusinessOwner", fields: [ownerId], references: [id])
+
+  services     Service[]
+  availability Availability[]
+  bookings     Booking[]
+  members      Membership[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  @@map("businesses")
+}
+
+//////////////////////
+// MEMBERSHIP (TEAM SUPPORT)
+//////////////////////
+
+model Membership {
+  id         String   @id @default(uuid())
+
+  userId     String   @map("user_id")
+  businessId String   @map("business_id")
+  role       MembershipRole     @default(ADMIN)
+
+  user       User     @relation(fields: [userId], references: [id])
+  business   Business @relation(fields: [businessId], references: [id])
+
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, businessId])
+  @@map("memberships")
+}
+
+//////////////////////
+// SERVICE
+//////////////////////
+
+model Service {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  price       Int
+  duration    Int      // minutes
+
+  businessId  String   @map("business_id")
+  business    Business @relation(fields: [businessId], references: [id])
+
+  bookings    Booking[]
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  @@index([businessId])
+  @@map("services")
+}
+
+//////////////////////
+// AVAILABILITY
+//////////////////////
+
+model Availability {
+  id          String   @id @default(uuid())
+
+  businessId  String   @map("business_id")
+  business    Business @relation(fields: [businessId], references: [id])
+
+  dayOfWeek   Int      @map("day_of_week") // 0–6
+  startTime   String   @map("start_time")  // "09:00"
+  endTime     String   @map("end_time")    // "17:00"
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+
+  @@index([businessId])
+  @@unique([businessId, dayOfWeek])
+  @@map("availability")
+}
+
+//////////////////////
+// BOOKING
+//////////////////////
+
+model Booking {
+  id          String        @id @default(uuid())
+
+  userId      String        @map("user_id")
+  serviceId   String        @map("service_id")
+  businessId  String        @map("business_id")
+
+  user        User          @relation(fields: [userId], references: [id])
+  service     Service       @relation(fields: [serviceId], references: [id])
+  business    Business      @relation(fields: [businessId], references: [id])
+
+  date        DateTime
+
+  startTime   String        @map("start_time") // "14:00"
+  endTime     String        @map("end_time")   // "14:30"
+
+  status      BookingStatus @default(PENDING)
+
+  notes       String?
+
+  payment     Payment?
+
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt      @map("updated_at")
+
+  @@unique([businessId, date, startTime]) // CRITICAL
+  @@index([businessId, date])             // performance
+  @@index([businessId])
+
+  @@map("bookings")
+}
+
+//////////////////////
+// PAYMENT
+//////////////////////
+
+model Payment {
+  id          String   @id @default(uuid())
+
+  bookingId   String   @unique @map("booking_id")
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+
+  amount      Float
+  status      PaymentStatus   // "paid", "pending"
+  provider    String   // "stripe"
+
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("payments")
+}
