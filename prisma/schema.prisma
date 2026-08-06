@@ -113,6 +113,18 @@ model User {
 // BUSINESS (CORE SAAS UNIT)
 //////////////////////
 
+model Category {
+  id   String @id @default(uuid())
+  name String @unique
+  slug String @unique
+
+  businesses Business[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("categories")
+}
+
 model Business {
   id          String   @id @default(uuid())
   name        String
@@ -127,6 +139,9 @@ model Business {
   availability Availability[]
   bookings     Booking[]
   members      Membership[]
+
+  categoryId   String?
+  category     Category? @relation(fields: [categoryId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
