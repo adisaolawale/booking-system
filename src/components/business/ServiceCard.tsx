@@ -1,19 +1,33 @@
 import Link from "next/link";
-import { Scissors } from "lucide-react";
+import { Scissors, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Service } from "@/generated/prisma";
 
-export function ServiceCard({ service, slug }: { service: Service; slug: string }) {
+export function ServiceCard({
+  service,
+  slug,
+  businessName,
+}: {
+  service: Service;
+  slug: string;
+  businessName?: string;
+}) {
   return (
     <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-5">
       <div className="flex items-start gap-3">
-        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
+        <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent">
           <Scissors size={15} className="text-primary" />
         </div>
         <div>
           <h3 className="mb-1 font-heading text-base font-semibold text-card-foreground">
             {service.title}
           </h3>
+          {businessName && (
+            <p className="mb-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Building2 size={11} />
+              {businessName}
+            </p>
+          )}
           {service.description && (
             <p className="mb-2 text-sm text-muted-foreground">{service.description}</p>
           )}
@@ -33,6 +47,43 @@ export function ServiceCard({ service, slug }: { service: Service; slug: string 
     </div>
   );
 }
+
+
+// import Link from "next/link";
+// import { Scissors } from "lucide-react";
+// import { Button } from "@/components/ui/button";
+// import type { Service } from "@/generated/prisma";
+
+// export function ServiceCard({ service, slug }: { service: Service; slug: string }) {
+//   return (
+//     <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-5">
+//       <div className="flex items-start gap-3">
+//         <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary">
+//           <Scissors size={15} className="text-primary" />
+//         </div>
+//         <div>
+//           <h3 className="mb-1 font-heading text-base font-semibold text-card-foreground">
+//             {service.title}
+//           </h3>
+//           {service.description && (
+//             <p className="mb-2 text-sm text-muted-foreground">{service.description}</p>
+//           )}
+//           <span className="font-mono text-xs text-muted-foreground">
+//             ${(service.price / 100).toFixed(2)} &middot; {service.duration} min
+//           </span>
+//         </div>
+//       </div>
+
+//       <Button
+//         asChild
+//         variant="outline"
+//         className="shrink-0 rounded-lg border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+//       >
+//         <Link href={`/b/${slug}/book?service=${service.id}`}>Select</Link>
+//       </Button>
+//     </div>
+//   );
+// }
 
 
 // import Link from "next/link";

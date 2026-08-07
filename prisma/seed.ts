@@ -1,18 +1,19 @@
 import { prisma } from "./config.js"
 
-const CATEGORIES = [
-  "Hair & Barbering",
-  "Nails & Beauty",
-  "Massage & Spa",
-  "Yoga & Fitness",
-  "Personal Training",
-  "Tutoring & Lessons",
-  "Coaching & Consulting",
-  "Photography",
-  "Pet Grooming",
-  "Home & Repair Services",
-  "Health & Wellness",
-  "Events & Entertainment",
+// Icon values must match a key exported from src/lib/category-icons.tsx
+const CATEGORIES: { name: string; icon: string }[] = [
+  { name: "Hair & Barbering", icon: "Scissors" },
+  { name: "Nails & Beauty", icon: "Sparkles" },
+  { name: "Massage & Spa", icon: "Flower2" },
+  { name: "Yoga & Fitness", icon: "PersonStanding" },
+  { name: "Personal Training", icon: "Dumbbell" },
+  { name: "Tutoring & Lessons", icon: "GraduationCap" },
+  { name: "Coaching & Consulting", icon: "Briefcase" },
+  { name: "Photography", icon: "Camera" },
+  { name: "Pet Grooming", icon: "PawPrint" },
+  { name: "Home & Repair Services", icon: "Wrench" },
+  { name: "Health & Wellness", icon: "HeartPulse" },
+  { name: "Events & Entertainment", icon: "PartyPopper" },
 ];
 
 function slugify(name: string) {
@@ -24,11 +25,12 @@ function slugify(name: string) {
 }
 
 async function main() {
-  for (const name of CATEGORIES) {
+  for (const { name, icon } of CATEGORIES) {
+    const slug = slugify(name);
     await prisma.category.upsert({
-      where: { slug: slugify(name) },
-      update: {},
-      create: { name, slug: slugify(name) },
+      where: { slug },
+      update: { icon },
+      create: { name, slug, icon },
     });
   }
   console.log(`Seeded ${CATEGORIES.length} categories.`);

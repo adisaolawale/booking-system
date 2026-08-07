@@ -1,11 +1,18 @@
+import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/homepage/SiteHeader";
 import { Hero } from "@/components/homepage/Hero";
 import { HowItWorks } from "@/components/homepage/HowItWorks";
 import { BusinessCTA } from "@/components/homepage/BusinessCTA";
+import { PopularServicesCategories } from "@/components/homepage/PopularServicesCategories";
 import { Testimonials } from "@/components/homepage/Testimonials";
-import { Footer } from "@/components/homepage/Footer"
+import { Footer } from "@/components/homepage/Footer";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true, slug: true, icon: true },
+  });
+
   return (
     <>
       <SiteHeader />
@@ -13,9 +20,10 @@ export default function HomePage() {
         <Hero />
         <HowItWorks />
         <BusinessCTA />
+        <PopularServicesCategories categories={categories} />
         <Testimonials />
-        <Footer />
       </main>
+      <Footer />
     </>
   );
 }

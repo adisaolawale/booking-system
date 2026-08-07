@@ -117,6 +117,7 @@ model Category {
   id   String @id @default(uuid())
   name String @unique
   slug String @unique
+  icon String? // lucide-react icon component name, e.g. "Scissors"
 
   businesses Business[]
 

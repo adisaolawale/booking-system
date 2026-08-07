@@ -46,7 +46,7 @@ export function Hero() {
               </Link>
             </Button>
             <Button asChild variant="outline" className="rounded-full border-border px-6 py-6 text-sm">
-              <Link href="/book-a-service">Book a Service</Link>
+              <Link href="/services">Book a Service</Link>
             </Button>
           </div>
 
