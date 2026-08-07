@@ -109,6 +109,27 @@ model User {
   @@map("users")
 }
 
+
+model Testimonial {
+  id         String  @id @default(uuid())
+  quoteTitle String
+  quoteBody  String  @db.Text
+  name       String
+  role       String
+  company    String
+  avatar     String
+
+  // Controls the homepage's curated 8 — NOT tied to array order in code
+  // anymore. Toggle featured + set order to control what shows there.
+  featured Boolean @default(false)
+  order    Int     @default(0)
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt      @map("updated_at")
+
+  @@map("testimonials")
+}
+
 //////////////////////
 // BUSINESS (CORE SAAS UNIT)
 //////////////////////
@@ -149,6 +170,8 @@ model Business {
 
   @@map("businesses")
 }
+
+
 
 //////////////////////
 // MEMBERSHIP (TEAM SUPPORT)

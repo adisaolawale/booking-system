@@ -8,10 +8,17 @@ import { Testimonials } from "@/components/homepage/Testimonials";
 import { Footer } from "@/components/homepage/Footer";
 
 export default async function HomePage() {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-    select: { id: true, name: true, slug: true, icon: true },
-  });
+  const [categories, testimonials] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, slug: true, icon: true },
+    }),
+    prisma.testimonial.findMany({
+      where: { featured: true },
+      orderBy: { order: "asc" },
+      take: 8,
+    }),
+  ]);
 
   return (
     <>
@@ -21,7 +28,7 @@ export default async function HomePage() {
         <HowItWorks />
         <BusinessCTA />
         <PopularServicesCategories categories={categories} />
-        <Testimonials />
+        <Testimonials testimonials={testimonials} />
       </main>
       <Footer />
     </>
