@@ -26,7 +26,15 @@ export async function registerUser(
   }
 
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) {
+
+  // A guest-checkout row (created by booking without an account — see
+  // lib/actions/booking.ts) has no password. That's not a real account
+  // yet, so upgrade it in place rather than telling this person an
+  // account "already exists" for an email they only ever used to book
+  // something once.
+  const isGuestShell = existing && existing.password === null;
+
+  if (existing && !isGuestShell) {
     return { error: "An account with that email already exists." };
   }
 
@@ -48,16 +56,17 @@ export async function registerUser(
   }
 
   const hashed = await bcrypt.hash(password, 10);
+  const role = tab === "business" ? "OWNER" : "CUSTOMER";
 
   await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        name,
-        email,
-        password: hashed,
-        role: tab === "business" ? "OWNER" : "CUSTOMER",
-      },
-    });
+    const user = isGuestShell
+      ? await tx.user.update({
+          where: { id: existing!.id },
+          data: { name, password: hashed, role },
+        })
+      : await tx.user.create({
+          data: { name, email, password: hashed, role },
+        });
 
     if (tab === "business" && businessName) {
       await tx.business.create({
@@ -88,6 +97,7 @@ export async function registerUser(
 
   redirect(`/verify?email=${encodeURIComponent(email)}`);
 }
+
 
 
 
@@ -125,13 +135,18 @@ export async function registerUser(
 
 //   let businessName: string | undefined;
 //   let businessDescription: string | null = null;
+//   let categoryId: string | undefined;
 
 //   if (tab === "business") {
 //     businessName = (formData.get("businessName") as string)?.trim();
 //     businessDescription = (formData.get("businessDescription") as string)?.trim() || null;
+//     categoryId = (formData.get("categoryId") as string) || undefined;
 
 //     if (!businessName) {
 //       return { error: "Business name is required." };
+//     }
+//     if (!categoryId) {
+//       return { error: "Please select a category for your business." };
 //     }
 //   }
 
@@ -152,6 +167,7 @@ export async function registerUser(
 //         data: {
 //           name: businessName,
 //           description: businessDescription,
+//           categoryId,
 //           ownerId: user.id,
 //         },
 //       });
@@ -163,19 +179,14 @@ export async function registerUser(
 //     data: {
 //       identifier: email,
 //       token: pin,
-//       expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes
+//       expires: new Date(Date.now() + 10 * 60 * 1000),
 //     },
 //   });
 
 //   try {
 //     await sendVerificationEmail(email, pin);
 //   } catch {
-//     // The account and PIN both exist at this point — don't strand the user
-//     // on a dead end. Let them into /verify anyway; the Resend button there
-//     // calls resendCode, which is a second chance to actually deliver it.
-//     redirect(
-//       `/verify?email=${encodeURIComponent(email)}&emailFailed=1`
-//     );
+//     redirect(`/verify?email=${encodeURIComponent(email)}&emailFailed=1`);
 //   }
 
 //   redirect(`/verify?email=${encodeURIComponent(email)}`);

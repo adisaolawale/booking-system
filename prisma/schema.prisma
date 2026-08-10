@@ -102,11 +102,27 @@ model User {
   bookings        Booking[]
   accounts        Account[]
   sessions        Session[]
+  favorites       Favorite[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
 
   @@map("users")
+}
+
+
+model Favorite {
+  id         String @id @default(uuid())
+  userId     String @map("user_id")
+  businessId String @map("business_id")
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, businessId])
+  @@map("favorites")
 }
 
 
@@ -161,6 +177,7 @@ model Business {
   availability Availability[]
   bookings     Booking[]
   members      Membership[]
+  favoritedBy  Favorite[]
 
   categoryId   String?
   category     Category? @relation(fields: [categoryId], references: [id])

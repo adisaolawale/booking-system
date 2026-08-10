@@ -1,196 +1,393 @@
-import { prisma } from "./config.js"
+import { prisma } from "./config.js";
+import { hash } from "bcryptjs";
 
-const TESTIMONIALS = [
+// ─────────────────────────────────────────────
+// Categories (same 12 names already in the DB)
+// ─────────────────────────────────────────────
+const CATEGORIES = [
+  "Hair & Barbering",
+  "Nails & Beauty",
+  "Massage & Spa",
+  "Yoga & Fitness",
+  "Personal Training",
+  "Tutoring & Lessons",
+  "Coaching & Consulting",
+  "Photography",
+  "Pet Grooming",
+  "Home & Repair Services",
+  "Health & Wellness",
+  "Events & Entertainment",
+];
+
+function slugify(name: string) {
+  return name
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+}
+
+// ─────────────────────────────────────────────
+// Users (owners) – password for ALL: Adisa@123
+// ─────────────────────────────────────────────
+const USERS = [
   {
-    quoteTitle: "Fully booked, finally",
-    quoteBody:
-      "Since switching to BookEase our calendar fills itself. No more back-and-forth texts trying to find a slot that works.",
     name: "Elena Marsh",
-    role: "Studio Owner",
-    company: "Lumen Yoga",
-    avatar: "https://randomuser.me/api/portraits/women/68.jpg",
+    email: "elena@lumenyoga.com",
+    role: "OWNER" as const,
   },
   {
-    quoteTitle: "Wow effect",
-    quoteBody:
-      "The booking flow feels so smooth clients comment on it unprompted. It's the first tool we've used that actually looks as good as it works.",
     name: "Marcus Field",
-    role: "Founder",
-    company: "Fade & Co Barbershop",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    email: "marcus@fadeandco.com",
+    role: "OWNER" as const,
   },
   {
-    quoteTitle: "Zero no-shows",
-    quoteBody: "Automated reminders alone paid for the subscription in the first month.",
     name: "Priya Chandran",
-    role: "Owner",
-    company: "Chandran Tutoring",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+    email: "priya@chandrantutoring.com",
+    role: "OWNER" as const,
   },
   {
-    quoteTitle: "Set up in an hour",
-    quoteBody: "I expected a whole afternoon of setup. I was taking bookings before lunch.",
     name: "Diego Alvarez",
-    role: "Massage Therapist",
-    company: "Self-employed",
-    avatar: "https://randomuser.me/api/portraits/men/75.jpg",
+    email: "diego@selfmassage.com",
+    role: "OWNER" as const,
   },
   {
-    quoteTitle: "Clients love it",
-    quoteBody:
-      "The confirmation emails and calendar invites make us look more professional than businesses twice our size.",
     name: "Hannah Wu",
-    role: "Studio Manager",
-    company: "Pulse Pilates",
-    avatar: "https://randomuser.me/api/portraits/women/21.jpg",
-  },
-  {
-    quoteTitle: "Simple, honestly",
-    quoteBody:
-      "I'm not techy at all. My daughter set it up for me in ten minutes and I've used it every day since.",
-    name: "Robert King",
-    role: "Owner",
-    company: "King's Cuts",
-    avatar: "https://randomuser.me/api/portraits/men/12.jpg",
-  },
-  {
-    quoteTitle: "Real-time saved us",
-    quoteBody:
-      "Two staff members double-booking the same slot used to happen weekly. It hasn't happened once since we switched.",
-    name: "Aisha Bello",
-    role: "Operations Lead",
-    company: "Bloom Wellness Studio",
-    avatar: "https://randomuser.me/api/portraits/women/56.jpg",
-  },
-  {
-    quoteTitle: "Great support",
-    quoteBody: "Had a question at 9pm and got a real answer within the hour.",
-    name: "Tomasz Nowak",
-    role: "Personal Trainer",
-    company: "Self-employed",
-    avatar: "https://randomuser.me/api/portraits/men/89.jpg",
-  },
-  {
-    quoteTitle: "Clean and fast",
-    quoteBody: "Everything about it feels considered \u2014 from the booking page to the dashboard.",
-    name: "Grace Oyelaran",
-    role: "Co-founder",
-    company: "Radiant Skin Studio",
-    avatar: "https://randomuser.me/api/portraits/women/8.jpg",
-  },
-  {
-    quoteTitle: "Worth every cent",
-    quoteBody:
-      "We tried three other platforms first. BookEase is the only one our clients didn't complain about.",
-    name: "Samuel Okafor",
-    role: "Owner",
-    company: "Okafor Tutors",
-    avatar: "https://randomuser.me/api/portraits/men/47.jpg",
-  },
-  {
-    quoteTitle: "A real time saver",
-    quoteBody: "I used to spend an hour a day just managing my calendar by hand.",
-    name: "Lena Petrov",
-    role: "Nutrition Coach",
-    company: "Self-employed",
-    avatar: "https://randomuser.me/api/portraits/women/33.jpg",
-  },
-  {
-    quoteTitle: "Our clients notice",
-    quoteBody:
-      "More than one client has told us booking with us is easier than booking a haircut anywhere else.",
-    name: "David Osei",
-    role: "Owner",
-    company: "Osei Barbers",
-    avatar: "https://randomuser.me/api/portraits/men/61.jpg",
-  },
-  {
-    quoteTitle: "Finally, no double books",
-    quoteBody: "The availability logic just works, even across multiple staff calendars.",
-    name: "Meera Iyer",
-    role: "Studio Director",
-    company: "Iyer Dance Academy",
-    avatar: "https://randomuser.me/api/portraits/women/90.jpg",
-  },
-  {
-    quoteTitle: "Simple pricing, simple tool",
-    quoteBody: "No hidden fees, no surprise upsells. It does exactly what it says.",
-    name: "Connor Walsh",
-    role: "Owner",
-    company: "Walsh Fitness",
-    avatar: "https://randomuser.me/api/portraits/men/5.jpg",
-  },
-  {
-    quoteTitle: "Booked out weeks ahead",
-    quoteBody: "Our online presence used to be an afterthought. Now it's our busiest booking channel.",
-    name: "Fatima Rahman",
-    role: "Founder",
-    company: "Rahman Wellness Collective",
-    avatar: "https://randomuser.me/api/portraits/women/77.jpg",
-  },
-  {
-    quoteTitle: "It just feels premium",
-    quoteBody: "The design alone makes us feel like a bigger business than we are.",
-    name: "Ethan Brooks",
-    role: "Owner",
-    company: "Brooks Barbershop",
-    avatar: "https://randomuser.me/api/portraits/men/23.jpg",
-  },
-  {
-    quoteTitle: "Customer support that listens",
-    quoteBody: "We suggested a small feature and it shipped two weeks later.",
-    name: "Noor Haddad",
-    role: "Studio Manager",
-    company: "Haddad Pilates",
-    avatar: "https://randomuser.me/api/portraits/women/62.jpg",
-  },
-  {
-    quoteTitle: "My weekends back",
-    quoteBody:
-      "I used to spend Sunday nights confirming Monday's appointments by text. Now it just happens.",
-    name: "Lucas Ferreira",
-    role: "Tattoo Artist",
-    company: "Self-employed",
-    avatar: "https://randomuser.me/api/portraits/men/40.jpg",
-  },
-  {
-    quoteTitle: "Effortless for staff",
-    quoteBody: "Even our least tech-savvy team member picked it up in a day.",
-    name: "Chidinma Eze",
-    role: "Salon Owner",
-    company: "Eze Hair Studio",
-    avatar: "https://randomuser.me/api/portraits/women/15.jpg",
-  },
-  {
-    quoteTitle: "Would recommend in a heartbeat",
-    quoteBody:
-      "If you run a service business and you're not using something like this yet, you're leaving money on the table.",
-    name: "Oliver Bennett",
-    role: "Golf Instructor",
-    company: "Self-employed",
-    avatar: "https://randomuser.me/api/portraits/men/98.jpg",
+    email: "hannah@pulsepilates.com",
+    role: "OWNER" as const,
   },
 ];
 
-const FEATURED_COUNT = 8; // matches HOMEPAGE_COUNT from the old static array
+// ─────────────────────────────────────────────
+// Businesses (5) – category is assigned later by ID
+// ─────────────────────────────────────────────
+const BUSINESSES = [
+  {
+    name: "Lumen Yoga",
+    description:
+      "A calm, light-filled studio offering vinyasa, yin and restorative classes for every level.",
+    slug: "lumen-yoga",
+    ownerEmail: "elena@lumenyoga.com",
+  },
+  {
+    name: "Fade & Co Barbershop",
+    description:
+      "Classic cuts, modern fades and hot-towel shaves in a relaxed neighbourhood barbershop.",
+    slug: "fade-and-co",
+    ownerEmail: "marcus@fadeandco.com",
+  },
+  {
+    name: "Chandran Tutoring",
+    description:
+      "One-to-one and small-group tutoring in maths, science and exam preparation for secondary students.",
+    slug: "chandran-tutoring",
+    ownerEmail: "priya@chandrantutoring.com",
+  },
+  {
+    name: "Alvarez Therapeutic Massage",
+    description:
+      "Deep-tissue, sports and Swedish massage focused on recovery and long-term mobility.",
+    slug: "alvarez-massage",
+    ownerEmail: "diego@selfmassage.com",
+  },
+  {
+    name: "Pulse Pilates",
+    description:
+      "Reformer and mat pilates classes designed to build strength, posture and body awareness.",
+    slug: "pulse-pilates",
+    ownerEmail: "hannah@pulsepilates.com",
+  },
+];
+
+// ─────────────────────────────────────────────
+// Services – 5 per business
+// ─────────────────────────────────────────────
+const SERVICES_BY_BUSINESS: Record<
+  string,
+  { title: string; description: string; price: number; duration: number }[]
+> = {
+  "lumen-yoga": [
+    {
+      title: "Vinyasa Flow (60 min)",
+      description: "Dynamic breath-linked movement suitable for all levels.",
+      price: 2500,
+      duration: 60,
+    },
+    {
+      title: "Yin Yoga (75 min)",
+      description: "Long-held poses that target deep connective tissue.",
+      price: 2800,
+      duration: 75,
+    },
+    {
+      title: "Restorative Session",
+      description: "Supported poses with props for full nervous-system reset.",
+      price: 3000,
+      duration: 75,
+    },
+    {
+      title: "Private 1:1 Yoga",
+      description: "Personalised session tailored to your goals and body.",
+      price: 7500,
+      duration: 60,
+    },
+    {
+      title: "Intro Workshop",
+      description: "90-minute foundational workshop for absolute beginners.",
+      price: 3500,
+      duration: 90,
+    },
+  ],
+  "fade-and-co": [
+    {
+      title: "Classic Haircut",
+      description: "Wash, cut and style with hot towel finish.",
+      price: 3500,
+      duration: 45,
+    },
+    {
+      title: "Skin Fade",
+      description: "Precision skin fade with detailed finishing.",
+      price: 4000,
+      duration: 50,
+    },
+    {
+      title: "Hot Towel Shave",
+      description: "Traditional straight-razor shave with hot towels.",
+      price: 3000,
+      duration: 40,
+    },
+    {
+      title: "Cut + Beard Trim",
+      description: "Full haircut combined with beard shaping and oil.",
+      price: 5000,
+      duration: 60,
+    },
+    {
+      title: "Kids Cut (under 12)",
+      description: "Quick, friendly cut for younger clients.",
+      price: 2000,
+      duration: 30,
+    },
+  ],
+  "chandran-tutoring": [
+    {
+      title: "Maths 1:1 (60 min)",
+      description: "Secondary-level maths tutoring focused on weak areas.",
+      price: 4500,
+      duration: 60,
+    },
+    {
+      title: "Science 1:1 (60 min)",
+      description: "Physics, chemistry or biology support.",
+      price: 4500,
+      duration: 60,
+    },
+    {
+      title: "Exam Prep Intensive",
+      description: "90-minute focused revision and past-paper practice.",
+      price: 6500,
+      duration: 90,
+    },
+    {
+      title: "Small Group Session",
+      description: "Up to 4 students, same subject and level.",
+      price: 2500,
+      duration: 60,
+    },
+    {
+      title: "Homework Help Drop-in",
+      description: "30-minute targeted help with current assignments.",
+      price: 2500,
+      duration: 30,
+    },
+  ],
+  "alvarez-massage": [
+    {
+      title: "Swedish Massage (60 min)",
+      description: "Classic full-body relaxation massage.",
+      price: 6000,
+      duration: 60,
+    },
+    {
+      title: "Deep Tissue (60 min)",
+      description: "Focused work on chronic tension and knots.",
+      price: 7000,
+      duration: 60,
+    },
+    {
+      title: "Sports Recovery (75 min)",
+      description: "Pre/post event or training recovery massage.",
+      price: 8500,
+      duration: 75,
+    },
+    {
+      title: "Neck & Shoulders Focus",
+      description: "45-minute targeted upper-body session.",
+      price: 4500,
+      duration: 45,
+    },
+    {
+      title: "Couples Massage",
+      description: "Side-by-side 60-minute sessions for two people.",
+      price: 12000,
+      duration: 60,
+    },
+  ],
+  "pulse-pilates": [
+    {
+      title: "Reformer Group Class",
+      description: "Small-group reformer class (max 6).",
+      price: 3500,
+      duration: 55,
+    },
+    {
+      title: "Mat Pilates",
+      description: "Classic mat work focusing on core and alignment.",
+      price: 2500,
+      duration: 50,
+    },
+    {
+      title: "Private Reformer",
+      description: "One-to-one reformer session with full attention.",
+      price: 8000,
+      duration: 55,
+    },
+    {
+      title: "Duets Session",
+      description: "Shared private session for two people.",
+      price: 5000,
+      duration: 55,
+    },
+    {
+      title: "Intro to Pilates",
+      description: "Foundational private session for complete beginners.",
+      price: 6000,
+      duration: 60,
+    },
+  ],
+};
+
+const PASSWORD = "Adisa@123";
 
 async function main() {
-  for (let i = 0; i < TESTIMONIALS.length; i++) {
-    const t = TESTIMONIALS[i];
-    const data = { ...t, featured: i < FEATURED_COUNT, order: i };
+  console.log("🔐 Hashing password...");
+  const hashedPassword = await hash(PASSWORD, 12);
 
-    const existing = await prisma.testimonial.findFirst({
-      where: { name: t.name, company: t.company },
-      select: { id: true },
+  // 1. Ensure the 12 categories exist
+  console.log("\n📂 Ensuring categories exist...");
+  for (const name of CATEGORIES) {
+    await prisma.category.upsert({
+      where: { slug: slugify(name) },
+      update: {},
+      create: { name, slug: slugify(name) },
+    });
+  }
+
+  // 2. Fetch ALL categories with their real IDs from the database
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+  });
+
+  console.log(`   ✓ Found ${categories.length} categories in DB:`);
+  categories.forEach((c) => console.log(`     - ${c.name} → ${c.id}`));
+
+  if (categories.length === 0) {
+    throw new Error("No categories found in the database. Cannot continue.");
+  }
+
+  // 3. Seed users
+  console.log("\n👤 Seeding users...");
+  const userMap = new Map<string, string>(); // email → id
+
+  for (const u of USERS) {
+    const user = await prisma.user.upsert({
+      where: { email: u.email },
+      update: {
+        name: u.name,
+        password: hashedPassword,
+        role: u.role,
+      },
+      create: {
+        name: u.name,
+        email: u.email,
+        password: hashedPassword,
+        role: u.role,
+      },
+    });
+    userMap.set(u.email, user.id);
+    console.log(`   ✓ ${u.name} <${u.email}>`);
+  }
+
+  // 4. Seed businesses – assign categoryId from the fetched list
+  console.log("\n🏪 Seeding businesses & services...");
+
+  for (let i = 0; i < BUSINESSES.length; i++) {
+    const b = BUSINESSES[i];
+    const ownerId = userMap.get(b.ownerEmail);
+
+    if (!ownerId) {
+      console.error(`   ✗ Owner not found for ${b.name}`);
+      continue;
+    }
+
+    // Pick a category ID from the array (cycle through the 12)
+    const category = categories[i % categories.length];
+
+    const business = await prisma.business.upsert({
+      where: { slug: b.slug },
+      update: {
+        name: b.name,
+        description: b.description,
+        ownerId,
+        categoryId: category.id,
+      },
+      create: {
+        name: b.name,
+        description: b.description,
+        slug: b.slug,
+        ownerId,
+        categoryId: category.id,
+      },
     });
 
-    if (existing) {
-      await prisma.testimonial.update({ where: { id: existing.id }, data });
-    } else {
-      await prisma.testimonial.create({ data });
+    console.log(
+      `   ✓ Business: ${business.name} → category: ${category.name} (${category.id})`
+    );
+
+    // 5. Create / update 5 services for this business
+    const services = SERVICES_BY_BUSINESS[b.slug] ?? [];
+    for (const s of services) {
+      const existing = await prisma.service.findFirst({
+        where: { businessId: business.id, title: s.title },
+      });
+
+      if (existing) {
+        await prisma.service.update({
+          where: { id: existing.id },
+          data: {
+            description: s.description,
+            price: s.price,
+            duration: s.duration,
+          },
+        });
+      } else {
+        await prisma.service.create({
+          data: {
+            title: s.title,
+            description: s.description,
+            price: s.price,
+            duration: s.duration,
+            businessId: business.id,
+          },
+        });
+      }
     }
+    console.log(`     → ${services.length} services`);
   }
-  console.log(`Seeded ${TESTIMONIALS.length} testimonials.`);
+
+  console.log("\n✅ Seed complete!");
+  console.log(`   Password for every user: ${PASSWORD}`);
 }
 
 main()
