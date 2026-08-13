@@ -1,11 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export async function createService(data: {
-  name: string;
-  price: number;
-  duration: number;
-  businessId: string;
-}) {
+export async function createService(data: any) {
   return prisma.service.create({
     data,
   });
