@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CalendarClock, Loader2, Mail } from "lucide-react";
-import type { Booking, Service, Business, User } from "@/src/generated/prisma";
+import type { Booking, Service, Business, User } from "@/generated/prisma";
 import {
   AlertDialog,
   AlertDialogAction,
