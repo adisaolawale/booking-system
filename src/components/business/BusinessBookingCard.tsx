@@ -44,7 +44,7 @@ export function BusinessBookingCard({
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
-  function updateStatus(status: "CONFIRMED" | "CANCELLED" | "COMPLETED") {
+  function updateStatus(status: "CONFIRMED" | "CANCELLED" | "PENDING") {
     startTransition(async () => {
       await updateBookingStatus(booking.id, status);
       router.refresh();
@@ -174,11 +174,11 @@ export function BusinessBookingCard({
           {showComplete && (
             <button
               type="button"
-              onClick={() => updateStatus("COMPLETED")}
+              onClick={() => updateStatus("CONFIRMED")}
               disabled={isPending}
               className="flex items-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
             >
-              {isPending ? <Loader2 size={14} className="animate-spin" /> : "Mark as completed"}
+              {isPending ? <Loader2 size={14} className="animate-spin" /> : "Mark as confirmed"}
             </button>
           )}
         </div>

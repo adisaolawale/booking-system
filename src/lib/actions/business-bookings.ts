@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 
-type NextStatus = "CONFIRMED" | "CANCELLED" | "COMPLETED";
+type NextStatus = "CONFIRMED" | "CANCELLED" | "PENDING";
 
 export async function updateBookingStatus(bookingId: string, status: NextStatus) {
   const session = await auth();
