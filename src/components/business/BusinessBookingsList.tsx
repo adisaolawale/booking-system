@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { Booking, Service, Business, User } from "@/src/generated/prisma";
+import type { Booking, Service, Business, User } from "@/generated/prisma";
 import { BusinessBookingCard } from "@/components/business/BusinessBookingCard";
 
 type BookingWithRelations = Booking & { service: Service; business: Business; user: User };
