@@ -178,6 +178,7 @@ model Business {
   bookings     Booking[]
   members      Membership[]
   favoritedBy  Favorite[]
+  timeOff      TimeOff[]
 
   categoryId   String?
   category     Category? @relation(fields: [categoryId], references: [id])
@@ -290,6 +291,21 @@ model Booking {
   @@index([businessId])
 
   @@map("bookings")
+}
+
+model TimeOff {
+  id         String   @id @default(uuid())
+  businessId String   @map("business_id")
+  date       DateTime
+  startTime  String?  @map("start_time") // null = blocks the entire day
+  endTime    String?  @map("end_time")   // null = blocks the entire day
+  reason     String?
+
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("time_off")
 }
 
 //////////////////////
