@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createService, updateService, type ServiceFormState } from "@/lib/actions/services";
-import type { Service } from "@/src/generated/prisma";
+import type { Service } from "@/generated/prisma";
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
