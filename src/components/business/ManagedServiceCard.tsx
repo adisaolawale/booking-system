@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import type { Service } from "@/src/generated/prisma";
+import type { Service } from "@/generated/prisma";
 import {
   AlertDialog,
   AlertDialogAction,
