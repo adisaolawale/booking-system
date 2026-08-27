@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { HeaderSearch } from "@/components/homepage/HeaderSearch";
 import { ProfileMenu } from "@/components/account/ProfileMenu";
 import { auth } from "@/lib/auth";
+import Image from "next/image";
 
 function initials(name: string) {
   return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -15,7 +16,19 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-6 px-4">
-        <Link href="/" className="shrink-0 font-heading text-lg font-semibold text-foreground">
+        {/* <Link href="/" className="shrink-0 font-heading text-lg font-semibold text-foreground">
+          BookEase
+        </Link> */}
+        <Link
+          href="/"
+          className="flex shrink-0 items-center gap-2 font-heading text-lg font-semibold text-foreground"
+        >
+          <Image
+            src="/icon.svg"
+            alt="BookEase"
+            width={32}
+            height={32}
+          />
           BookEase
         </Link>
 

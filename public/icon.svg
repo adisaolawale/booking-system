@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Brand Color Gradient -->
+    <linearGradient id="be-primary-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="oklch(0.45 0.08 181.2)" />
+      <stop offset="100%" stop-color="oklch(0.32 0.07 181.2)" />
+    </linearGradient>
+
+    <!-- Subtle Accent Gradient for Depth -->
+    <linearGradient id="be-accent-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="oklch(0.75 0.12 181.2)" />
+      <stop offset="100%" stop-color="oklch(0.55 0.09 181.2)" />
+    </linearGradient>
+
+    <!-- Soft Drop Shadow for SaaS Depth -->
+    <filter id="be-shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="oklch(0.20 0.04 181.2)" flood-opacity="0.15" />
+    </filter>
+  </defs>
+
+  <!-- Background Layer (Ideal for Standalone Icon/Favicon Use) -->
+  <rect width="512" height="512" rx="112" fill="url(#be-primary-grad)" />
+
+  <!-- Main Symbol Container -->
+  <g filter="url(#be-shadow)">
+    <!-- Book Base / Calendar Sheet (Elegantly Curved Spine & Pages) -->
+    <path d="M 128 160 
+             C 128 142.325 142.325 128 160 128 
+             L 320 128 
+             C 337.675 128 352 142.325 352 160 
+             L 352 352 
+             C 352 369.675 337.675 384 320 384 
+             L 160 384 
+             C 142.325 384 128 369.675 128 352 
+             Z" 
+          fill="#FFFFFF" />
+
+    <!-- Left Book Layer Page Stacks (Depth) -->
+    <path d="M 160 128 
+             L 320 128 
+             C 337.675 128 352 142.325 352 160 
+             L 352 176 
+             L 176 176 
+             C 149.49 176 128 154.51 128 128 
+             Z" 
+          fill="oklch(0.95 0.01 181.2)" 
+          opacity="0.6" />
+
+    <!-- Integrated Dynamic Checkmark (Ease & Booking Complete) -->
+    <path d="M 200 272 
+             L 256 328 
+             L 384 184" 
+          fill="none" 
+          stroke="url(#be-accent-grad)" 
+          stroke-width="36" 
+          stroke-linecap="round" 
+          stroke-linejoin="round" />
+
+    <!-- Calendar Rings / Book Spine Accents (Top Nodes) -->
+    <rect x="180" y="96" width="24" height="48" rx="12" fill="#FFFFFF" />
+    <rect x="308" y="96" width="24" height="48" rx="12" fill="#FFFFFF" />
+  </g>
+</svg>
