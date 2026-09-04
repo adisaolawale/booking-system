@@ -10,7 +10,7 @@ export async function sendVerificationEmail(email: string, pin: string) {
     // resend.dev works immediately with no setup — swap this for an address
     // on your own verified domain (e.g. verify@yourdomain.com) once you've
     // added and verified it in the Resend dashboard.
-    from: "BookEase <onboarding@resend.dev>",
+    from: "BookEase <onboarding@olawale.name.ng>",
     to: email,
     subject: `${pin} is your BookEase verification code`,
     react: VerificationEmail({ pin }),
