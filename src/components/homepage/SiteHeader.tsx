@@ -34,13 +34,13 @@ export async function SiteHeader() {
 
         <nav className="hidden shrink-0 items-center gap-6 md:flex">
           <Link
-            href="#popular-services"
+            href="/#popular-services"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Services
           </Link>
           <Link
-            href="#how-it-works"
+            href="/#how-it-works"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             How it Works
