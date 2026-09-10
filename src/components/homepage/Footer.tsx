@@ -14,7 +14,7 @@ const quickLinks = [
 const businessLinks = [
   { label: "Register your Business", href: "/register?as=business" },
   { label: "Business Dashboard", href: "/business" },
-  { label: "Pricing", href: "/pricing" },
+  // { label: "Pricing", href: "/pricing" },
   { label: "Features", href: "/#how-it-works" },
 ];
 
