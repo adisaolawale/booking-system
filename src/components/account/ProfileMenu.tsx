@@ -58,7 +58,7 @@ export function ProfileMenu({
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href="/help" className="flex items-center gap-2">
+          <Link href="/support" className="flex items-center gap-2">
             <LifeBuoy size={15} />
             Help & Support
           </Link>
