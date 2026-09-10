@@ -54,7 +54,15 @@ export function LoginForm() {
               Forgot password?
             </Link>
           </div>
-          <Input id="password" name="password" type="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" required />
+          {/* <Input id="password" name="password" type="password" placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022" required /> */}
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            required
+            className="rounded-xl border-border bg-background px-4 py-2 text-sm text-foreground focus:ring-primary"
+          />
         </div>
 
         <label className="flex items-center gap-2 text-sm text-muted-foreground">

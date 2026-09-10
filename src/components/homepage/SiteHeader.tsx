@@ -5,6 +5,7 @@ import { HeaderSearch } from "@/components/homepage/HeaderSearch";
 import { ProfileMenu } from "@/components/account/ProfileMenu";
 import { auth } from "@/lib/auth";
 import Image from "next/image";
+import { ModeToggle } from "../provider/ThemeToggle";
 
 function initials(name: string) {
   return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
@@ -85,6 +86,7 @@ export async function SiteHeader() {
               </Button>
             </>
           )}
+          <ModeToggle />
         </div>
       </div>
     </header>
