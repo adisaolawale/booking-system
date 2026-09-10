@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Settings, LifeBuoy, LogOut, ShieldCheck } from "lucide-react";
+import { Settings, LifeBuoy, LogOut, ShieldCheck, Crown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,6 +45,18 @@ export function ProfileMenu({
               <Link href="/admin" className="flex items-center gap-2">
                 <ShieldCheck size={15} />
                 View Admin Dashboard
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+          </>
+        )}
+
+        {role === "OWNER" && (
+          <>
+            <DropdownMenuItem asChild>
+              <Link href="/owner" className="flex items-center gap-2">
+                <Crown size={15} />
+                View Owner Dashboard
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
