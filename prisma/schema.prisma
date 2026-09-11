@@ -53,6 +53,20 @@ model VerificationToken {
   @@map("verification_tokens")
 }
 
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique @map("token_hash")
+  userId    String   @map("user_id")
+  expires   DateTime
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}
+
 //////////////////////
 // ENUMS
 //////////////////////
@@ -103,6 +117,8 @@ model User {
   accounts        Account[]
   sessions        Session[]
   favorites       Favorite[]
+
+  passwordResetTokens PasswordResetToken[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt      @map("updated_at")
