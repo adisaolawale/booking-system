@@ -21,13 +21,10 @@ export async function loginAction(
     if (error instanceof AuthError) {
       // Unnest error.cause.err if Auth.js wraps the error object
       const cause = error.cause as { err?: Error & { code?: string } } | undefined;
-
-      if (
-        error instanceof CredentialsSignin ||
-        cause?.err?.code === "EMAIL_NOT_VERIFIED" ||
-        cause?.err?.message === "EMAIL_NOT_VERIFIED"
-      ) {
-        return { error: "Please verify your email before logging in." };
+      if (error instanceof AuthError) {
+        if ((error as { code?: string }).code === "EMAIL_NOT_VERIFIED")
+          return { error: "Please verify your email before logging in." };
+        return { error: "Invalid email or password." };
       }
 
       return { error: "Invalid email or password." };

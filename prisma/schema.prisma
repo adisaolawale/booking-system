@@ -11,6 +11,22 @@ datasource db {
 // AUTH.JS (NEXTAUTH) ADAPTER MODELS
 //////////////////////
 
+
+model PendingRegistration {
+  email               String   @id
+  codeHash            String   @map("code_hash")
+  passwordHash        String   @map("password_hash")
+  name                String
+  tab                 String
+  businessName        String?  @map("business_name")
+  businessDescription String?  @map("business_description")
+  categoryId          String?  @map("category_id")
+  attempts            Int      @default(0)
+  expires             DateTime
+  createdAt           DateTime @default(now()) @map("created_at")
+  @@map("pending_registrations")
+}
+
 model Account {
   id                String  @id @default(uuid())
   userId            String  @map("user_id")

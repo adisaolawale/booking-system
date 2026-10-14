@@ -51,20 +51,24 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
+  // auth.ts callbacks: real DB user for Google
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = (user as { role?: string }).role;
+    async signIn({ account, profile }) {
+      if (account?.provider === "google") return profile?.email_verified === true;
+      return true;
+    },
+    async jwt({ token, user, account }) {
+      if (account?.provider === "google" && token.email) {
+        const db = await prisma.user.upsert({
+          where: { email: token.email.toLowerCase() },
+          create: { email: token.email.toLowerCase(), name: token.name ?? null, emailVerified: new Date() },
+          update: { emailVerified: new Date() },
+        });
+        token.id = db.id; token.role = db.role;
+      } else if (user) {
+        token.id = user.id; token.role = (user as { role?: string }).role;
       }
       return token;
-    },
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-      }
-      return session;
     },
   },
 });
