@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { getAvailableSlots, to12h } from "@/lib/slots";
+import { format } from "date-fns";
 
 type Availability = { dayOfWeek: number; startTime: string; endTime: string };
 type DayBooking = { date: string; startTime: string; duration: number };
@@ -45,7 +46,7 @@ export function BookingFlow({
 
   function handleContinue() {
     if (!date || !time) return;
-    const dateParam = date.toISOString().slice(0, 10);
+    const dateParam = format(date, "yyyy-MM-dd");
     router.push(`/b/${slug}/details?service=${serviceId}&date=${dateParam}&time=${time}`);
   }
 

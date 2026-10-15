@@ -20,6 +20,10 @@ export async function createBooking(
   const day = new Date(`${i.date}T00:00:00.000Z`);
   const businessId = service.business.id;
 
+  const todayUtc = new Date();
+  todayUtc.setUTCHours(0, 0, 0, 0);
+  if (day < todayUtc) throw new BookingError("SLOT_UNAVAILABLE");
+
   try {
     return await prisma.$transaction(async (tx) => {
       // serialize concurrent bookings for this business+day so overlap checks are race-free
@@ -33,7 +37,7 @@ export async function createBooking(
       ]);
 
       const slots = getAvailableSlots({
-        date: day, availability, timeOffForDay: timeOff, durationMinutes: service.duration,
+        date: day, availability, timeOffForDay: timeOff, durationMinutes: service.duration, dayOfWeek: day.getUTCDay(),
         bookingsForDay: existing.map((b) => ({ startTime: b.startTime, duration: b.service.duration })),
       });
       if (!slots.includes(i.time)) throw new BookingError("SLOT_UNAVAILABLE");

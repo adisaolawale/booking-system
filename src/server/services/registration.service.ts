@@ -17,19 +17,23 @@ export async function startRegistration(i: {
   if (existing?.password) return { error: "ACCOUNT_EXISTS" as const };
 
   const pin = generatePin();
+  const passwordHash = await bcrypt.hash(i.password, 12);
   await prisma.pendingRegistration.upsert({   // upsert = only ONE valid PIN per email
     where: { email: i.email },
-    create: { email: i.email, codeHash: sha256(pin), passwordHash: await bcrypt.hash(i.password, 12),
-      name: i.name, tab: i.tab, businessName: i.businessName,
+    create: { email: i.email, codeHash: sha256(pin), passwordHash, name: i.name, tab: i.tab, businessName: i.businessName,
       businessDescription: i.businessDescription, categoryId: i.categoryId,
       expires: new Date(Date.now() + 10 * 60_000) },
-    update: { codeHash: sha256(pin), passwordHash: await bcrypt.hash(i.password, 12),
+    update: { codeHash: sha256(pin), passwordHash,
       name: i.name, tab: i.tab, businessName: i.businessName,
       businessDescription: i.businessDescription, categoryId: i.categoryId,
       attempts: 0, expires: new Date(Date.now() + 10 * 60_000) },
   });
-  await sendVerificationEmail(i.email, pin);
-  return { ok: true as const };
+  try {
+    await sendVerificationEmail(i.email, pin);
+  } catch {
+    return { ok: true as const, emailSent: false };
+  }
+  return { ok: true as const, emailSent: true };
 }
 
 export async function completeRegistration(email: string, code: string) {
@@ -57,4 +61,15 @@ export async function completeRegistration(email: string, code: string) {
     await tx.pendingRegistration.delete({ where: { email } });
   });
   return { ok: true as const };
+}
+
+export async function resendRegistrationCode(email: string) {
+  const p = await prisma.pendingRegistration.findUnique({ where: { email } });
+  if (!p) return; // nothing pending: do nothing, reveal nothing
+  const pin = generatePin();
+  await prisma.pendingRegistration.update({
+    where: { email },
+    data: { codeHash: sha256(pin), attempts: 0, expires: new Date(Date.now() + 10 * 60_000) },
+  });
+  await sendVerificationEmail(email, pin);
 }

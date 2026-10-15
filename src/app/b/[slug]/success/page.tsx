@@ -25,7 +25,7 @@ export default async function SuccessPage({
   // shouldn't be enough to pull up a confirmation on someone else's page.
   const booking = await prisma.booking.findFirst({
     where: { id: bookingId, businessId: business.id },
-    include: { service: true, user: true },
+    include: { service: true, user: { select: { email: true } } },
   });
 
   if (!booking) notFound();
@@ -54,7 +54,7 @@ export default async function SuccessPage({
             You&rsquo;re booked!
           </h1>
           <p className="mb-6 text-sm text-muted-foreground">
-            A confirmation was sent to {booking.user.email}.
+            A confirmation has been recorded for your booking.
           </p>
 
           <div className="mb-6 w-full rounded-xl bg-muted p-5 text-left">

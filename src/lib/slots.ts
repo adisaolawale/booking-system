@@ -34,6 +34,7 @@ function sameDate(a: Date, b: Date) {
  */
 export function getAvailableSlots({
   date,
+  dayOfWeek,
   availability,
   bookingsForDay,
   timeOffForDay = [],
@@ -41,6 +42,7 @@ export function getAvailableSlots({
   now = new Date(),
 }: {
   date: Date;
+  dayOfWeek?: number;
   availability: Availability[];
   bookingsForDay: DayBooking[];
   timeOffForDay?: DayTimeOff[];
@@ -53,7 +55,9 @@ export function getAvailableSlots({
     return [];
   }
 
-  const dayAvailability = availability.find((a) => a.dayOfWeek === date.getDay());
+  const dayAvailability = availability.find(
+    (a) => a.dayOfWeek === (dayOfWeek ?? date.getDay())
+  );
   if (!dayAvailability) return [];
 
   const startMinutes = toMinutes(dayAvailability.startTime);

@@ -19,7 +19,7 @@ import { to12h } from "@/lib/slots";
 import { STATUS_STYLES } from "@/lib/booking-status";
 import { updateBookingStatus } from "@/lib/actions/business-bookings";
 
-type BookingWithRelations = Booking & { service: Service; business: Business; user: User };
+type BookingWithRelations = Booking & { service: Service; business: Business; user: Pick<User, "name" | "email"> };
 
 function initials(name: string) {
   return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();

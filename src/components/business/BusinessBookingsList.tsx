@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { Booking, Service, Business, User } from "@/generated/prisma";
 import { BusinessBookingCard } from "@/components/business/BusinessBookingCard";
 
-type BookingWithRelations = Booking & { service: Service; business: Business; user: User };
+type BookingWithRelations = Booking & { service: Service; business: Business; user: Pick<User, "name" | "email">};
 type Tab = "upcoming" | "past";
 
 export function BusinessBookingsList({ bookings }: { bookings: BookingWithRelations[] }) {

@@ -42,7 +42,7 @@ export default async function BusinessHomePage() {
     prisma.booking.findMany({
       where: { businessId: business.id, date: { gte: startOfToday, lt: endOfToday } },
       orderBy: { startTime: "asc" },
-      include: { service: true, user: true },
+      include: { service: true, user: { select: { name: true, email: true } } },
     }),
     prisma.booking.count({
       where: { businessId: business.id, date: { gte: startOfToday, lt: endOfWeek } },

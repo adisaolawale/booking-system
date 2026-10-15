@@ -24,6 +24,7 @@ model PendingRegistration {
   attempts            Int      @default(0)
   expires             DateTime
   createdAt           DateTime @default(now()) @map("created_at")
+
   @@map("pending_registrations")
 }
 
@@ -318,9 +319,9 @@ model Booking {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt      @map("updated_at")
 
-  @@unique([businessId, date, startTime]) // CRITICAL
-  @@index([businessId, date])             // performance
+  @@index([businessId, date])
   @@index([businessId])
+  @@index([userId])
 
   @@map("bookings")
 }
@@ -336,6 +337,8 @@ model TimeOff {
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([businessId, date])
 
   @@map("time_off")
 }

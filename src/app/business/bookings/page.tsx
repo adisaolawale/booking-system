@@ -15,7 +15,7 @@ export default async function BusinessBookingsPage() {
   const bookings = await prisma.booking.findMany({
     where: { businessId: business.id },
     orderBy: [{ date: "asc" }, { startTime: "asc" }],
-    include: { service: true, business: true, user: true },
+    include: { service: true, business: true, user: { select: { name: true, email: true } }},
   });
 
   return (

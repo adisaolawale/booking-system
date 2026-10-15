@@ -21,7 +21,10 @@ export default async function BookPage({
     include: {
       availability: true,
       services: true,
-      bookings: { include: { service: true } },
+      bookings: {
+        where: { status: { not: "CANCELLED" }, date: { gte: new Date(new Date().toISOString().slice(0, 10)) } },
+        include: { service: true },
+      },
       timeOff: { where: { date: { gte: startOfToday } } },
     },
   });
