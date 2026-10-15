@@ -17,9 +17,9 @@ export async function GET(req: Request) {
   return NextResponse.json(services);
 }
 
-export async function POST(req: Request) {
-  const body = await req.json();
-  const service = await createService(body);
+// export async function POST(req: Request) {
+//   const body = await req.json();
+//   const service = await createService(body);
 
-  return NextResponse.json(service);
-}
+//   return NextResponse.json(service);
+// }
